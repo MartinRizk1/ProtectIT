@@ -1,0 +1,12 @@
+flask==2.3.3
+flask-cors==4.0.0
+flask-socketio==5.3.6
+psutil==5.9.5
+requests==2.31.0
+yara-python==4.3.1
+python-socketio==5.8.0
+python-engineio==4.7.1
+cryptography==41.0.4
+pymongo==4.5.0
+dnspython==2.4.2
+python-dotenv==1.0.1

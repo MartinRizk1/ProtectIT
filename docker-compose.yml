@@ -1,0 +1,58 @@
+version: '3.8'
+
+services:
+  mongodb:
+    image: mongo:latest
+    container_name: protectit-mongodb
+    restart: always
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongodb_data:/data/db
+    environment:
+      - MONGO_INITDB_DATABASE=protectit
+      
+  protectit-scanner:
+    build: ./scanner-service
+    container_name: protectit-scanner
+    restart: always
+    ports:
+      - "5001:5001"
+    environment:
+      - PYTHONUNBUFFERED=1
+    command: sh -c "cd /app && python main.py"
+
+  protectit-backend:
+    build: ./backend
+    container_name: protectit-backend
+    restart: always
+    ports:
+      - "5000:5000"
+    volumes:
+      - ./uploads:/app/uploads
+      - ./quarantine:/app/quarantine
+    environment:
+      - FLASK_ENV=production
+      - PYTHONUNBUFFERED=1
+      - SCANNER_SERVICE_URL=http://protectit-scanner:5001
+      - MONGODB_URI=mongodb://mongodb:27017
+      - MONGODB_DB=protectit
+    command: sh -c "python app.py"
+    depends_on:
+      - mongodb
+      - protectit-scanner
+    
+  protectit-frontend:
+    build: ./frontend
+    container_name: protectit-frontend
+    restart: always
+    ports:
+      - "3000:3000"
+    environment:
+      - REACT_APP_API_URL=http://localhost:5000
+    command: sh -c "npm start"
+    depends_on:
+      - protectit-backend
+    
+volumes:
+  mongodb_data:
