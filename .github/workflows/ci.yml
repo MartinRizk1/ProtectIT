@@ -1,0 +1,73 @@
+name: ProtectIT CI
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+
+jobs:
+  backend-tests:
+    runs-on: ubuntu-latest
+    services:
+      mongodb:
+        image: mongo:latest
+        ports:
+          - 27017:27017
+
+    steps:
+    - uses: actions/checkout@v3
+    - name: Set up Python 3.8
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.8'
+    - name: Install backend dependencies
+      working-directory: ./backend
+      run: |
+        python -m pip install --upgrade pip
+        pip install pytest pytest-cov
+        if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+    - name: Test backend
+      working-directory: ./backend
+      env:
+        MONGODB_URI: mongodb://localhost:27017
+        MONGODB_DB: protectit_test
+        SECRET_KEY: test-key-for-ci-only
+      run: |
+        python -m pytest
+
+  scanner-service-tests:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+    - name: Set up Python 3.8
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.8'
+    - name: Install scanner service dependencies
+      working-directory: ./scanner-service
+      run: |
+        python -m pip install --upgrade pip
+        pip install pytest pytest-cov
+        if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+    - name: Test scanner service
+      working-directory: ./scanner-service
+      run: |
+        python -m pytest
+
+  frontend-tests:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+    - name: Use Node.js 16
+      uses: actions/setup-node@v3
+      with:
+        node-version: '16'
+        cache: 'npm'
+        cache-dependency-path: './frontend/package-lock.json'
+    - name: Install frontend dependencies
+      working-directory: ./frontend
+      run: npm ci
+    - name: Test frontend
+      working-directory: ./frontend
+      run: npm test -- --passWithNoTests

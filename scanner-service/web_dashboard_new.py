@@ -30,7 +30,7 @@ class DashboardServer:
         self.port = port
         self.debug = debug
         self.app = Flask(__name__, template_folder='templates', static_folder='static')
-        self.app.config['SECRET_KEY'] = 'protectit_secret_key_2023'
+        self.app.config['SECRET_KEY'] = os.environ.get('DASHBOARD_SECRET_KEY', os.urandom(24).hex())
         self.socketio = SocketIO(self.app, cors_allowed_origins="*")
         self.db = ThreatDatabase()
         self.running = False
