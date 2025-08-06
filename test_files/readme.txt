@@ -1,0 +1,1 @@
+This is a normal text file that should not trigger any alerts.
