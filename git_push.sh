@@ -6,6 +6,10 @@ cd /Users/martinrizk/Desktop/Projects/ProtectIT
 # Initialize git if not already initialized
 git init
 
+# Remove any previous remote and add new one
+git remote remove origin 2>/dev/null
+git remote add origin https://github.com/MartinRizk1/ProtectIT.git
+
 # Configure .gitignore to ensure sensitive files are not tracked
 if [ ! -f .gitignore ]; then
     echo "Creating .gitignore file"
@@ -105,7 +109,10 @@ git commit -m "Initial commit: Enterprise-Grade Malware Detection System"
 git remote remove origin 2>/dev/null
 git remote add origin https://github.com/MartinRizk1/ProtectIT.git
 
+# Check the default branch name
+BRANCH=$(git symbolic-ref --short HEAD)
+
 # Push to GitHub
-git push -u origin master
+git push -u origin $BRANCH
 
 echo "Push completed. Check output for any errors."
